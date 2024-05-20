@@ -14,8 +14,7 @@ jwt = JWTManager(app)
 
 db.init_app(app)
 
-@app.before_first_request
-def create_tables():
+with app.app_context():
     db.create_all()
 
 api.add_resource(UserRegistration, '/register')

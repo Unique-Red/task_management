@@ -21,7 +21,7 @@ This is a simple RESTful API for a task management system that allows users to r
 - Flask-SQLAlchemy
 - Flask-SocketIO
 - Marshmallow
-- Werkzeug
+- Passlib
 
 ## Installation
 

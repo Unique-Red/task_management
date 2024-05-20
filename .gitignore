@@ -127,6 +127,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+taskm/
+.taskm
 
 # Spyder project settings
 .spyderproject
