@@ -1,28 +1,37 @@
 from flask import Flask
-from flask_restful import Api
+from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
-from models import db
-from resources import UserRegistration, UserLogin, TaskList, TaskDetail
-from config import Config
-from socket_events import socketio
+from flask_swagger_ui import get_swaggerui_blueprint
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
-app.config.from_object(Config)
 
-api = Api(app)
+# Configuration for SQLAlchemy
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Configuration for JWT
+app.config['JWT_SECRET_KEY'] = 'your_secret_key'
+
+# Initialize extensions
+db = SQLAlchemy(app)
 jwt = JWTManager(app)
+socketio = SocketIO(app)
 
-db.init_app(app)
+# Swagger UI configuration
+SWAGGER_URL = '/api/docs'
+API_URL = '/static/swagger.json'
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={'app_name': "Task Management API"}
+)
+app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
-with app.app_context():
-    db.create_all()
-
-api.add_resource(UserRegistration, '/register')
-api.add_resource(UserLogin, '/login')
-api.add_resource(TaskList, '/tasks')
-api.add_resource(TaskDetail, '/tasks/<int:task_id>')
-
-socketio.init_app(app)
+# Import routes
+from routes import *
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     socketio.run(app, debug=True)
